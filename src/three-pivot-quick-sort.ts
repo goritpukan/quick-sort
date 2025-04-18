@@ -3,19 +3,25 @@ export class ThreePivotQuickSort {
 
     private partition3(A: number[], left: number, right: number): [number, number, number, number] {
         if (right - left < 2) {
+            if (left < right) {
+                this.compares++;
+                if (A[left] > A[right]) {
+                    [A[left], A[right]] = [A[right], A[left]];
+                }
+            }
             return [left, left, right, right];
         }
 
-        this.compares++;
-        if (A[left] > A[left + 1]) [A[left], A[left + 1]] = [A[left + 1], A[left]];
-        this.compares++;
-        if (A[left] > A[right]) [A[left], A[right]] = [A[right], A[left]];
-        this.compares++;
-        if (A[left + 1] > A[right]) [A[left + 1], A[right]] = [A[right], A[left + 1]];
+        let pivots = [A[left], A[left + 1], A[right]];
+        pivots.sort((a, b) => {
+            this.compares++;
+            return a - b;
+        });
+        const [p, q, r] = pivots;
 
-        const p = A[left];
-        const q = A[left + 1];
-        const r = A[right];
+        A[left] = p;
+        A[left + 1] = q;
+        A[right] = r;
 
         let a = left + 2;
         let b = left + 2;
@@ -23,9 +29,7 @@ export class ThreePivotQuickSort {
         let d = right - 1;
 
         while (b <= c) {
-            while (b <= c) {
-                this.compares++;
-                if (A[b] > q) break;
+            while (b <= c && A[b] < q) {
                 this.compares++;
                 if (A[b] < p) {
                     [A[a], A[b]] = [A[b], A[a]];
@@ -34,9 +38,7 @@ export class ThreePivotQuickSort {
                 b++;
             }
 
-            while (b <= c) {
-                this.compares++;
-                if (A[c] < q) break;
+            while (b <= c && A[c] > q) {
                 this.compares++;
                 if (A[c] > r) {
                     [A[c], A[d]] = [A[d], A[c]];
@@ -47,33 +49,26 @@ export class ThreePivotQuickSort {
 
             if (b <= c) {
                 this.compares++;
-                const isBGtR = A[b] > r;
-                this.compares++;
-                const isCLtP = A[c] < p;
-
-                if (isBGtR && isCLtP) {
-                    this.compares += 2;
+                if (A[b] > r) {
+                    if (A[c] < p) {
+                        [A[b], A[a]] = [A[a], A[b]];
+                        [A[a], A[c]] = [A[c], A[a]];
+                        a++;
+                    } else {
+                        [A[b], A[c]] = [A[c], A[b]];
+                    }
+                    [A[c], A[d]] = [A[d], A[c]];
+                    d--;
+                } else if (A[c] < p) {
                     [A[b], A[a]] = [A[a], A[b]];
                     [A[a], A[c]] = [A[c], A[a]];
                     a++;
-                    [A[c], A[d]] = [A[d], A[c]];
-                    d--;
-                } else if (isBGtR) {
-                    this.compares++;
-                    [A[b], A[c]] = [A[c], A[b]];
-                    [A[c], A[d]] = [A[d], A[c]];
-                    d--;
-                } else if (isCLtP) {
-                    this.compares++;
-                    [A[b], A[a]] = [A[a], A[b]];
-                    [A[a], A[c]] = [A[c], A[a]];
-                    a++;
+                    c--;
                 } else {
                     [A[b], A[c]] = [A[c], A[b]];
+                    c--;
                 }
-
                 b++;
-                c--;
             }
         }
 
@@ -86,7 +81,7 @@ export class ThreePivotQuickSort {
         [A[left + 1], A[b]] = [A[b], A[left + 1]];
         [A[right], A[d]] = [A[d], A[right]];
 
-        return [a, b, c, d];
+        return [a, a, d, d + 1];
     }
 
     sort(A: number[], left: number = 0, right: number = A.length - 1): void {
@@ -97,7 +92,7 @@ export class ThreePivotQuickSort {
         const [p1, p2, p3, p4] = this.partition3(A, left, right);
 
         this.sort(A, left, p1 - 1);
-        this.sort(A, p1 + 1, p2);
+        this.sort(A, p1 + 1, p2 - 1);
         this.sort(A, p2 + 1, p3 - 1);
         this.sort(A, p4 + 1, right);
     }
