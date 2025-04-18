@@ -59,10 +59,12 @@ export class ThreePivotQuickSort {
                     [A[c], A[d]] = [A[d], A[c]];
                     d--;
                 } else if (isBGtR) {
+                    this.compares++;
                     [A[b], A[c]] = [A[c], A[b]];
                     [A[c], A[d]] = [A[d], A[c]];
                     d--;
                 } else if (isCLtP) {
+                    this.compares++;
                     [A[b], A[a]] = [A[a], A[b]];
                     [A[a], A[c]] = [A[c], A[a]];
                     a++;
